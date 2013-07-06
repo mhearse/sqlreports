@@ -30,7 +30,7 @@ class sql:
             sys.exit(1)
 
     ##############################################
-    def mysql(self):
+    def runQuery(self, sql):
     ##############################################
         import MySQLdb
         try:
@@ -47,9 +47,6 @@ class sql:
 
         self.cursor = self.db.cursor()
 
-    ##############################################
-    def runQuery(self, sql):
-    ##############################################
         # Execute query and load results into 2d list.
         try:
             self.sqloutput = []
