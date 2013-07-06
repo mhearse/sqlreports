@@ -25,11 +25,11 @@ class sql:
         for key in args.keys():
             setattr(self, key, args[key])
 
-        if not self.DATABASE_ENGINE:
-            sys.stderr.write('No database engine defined\n')
-            sys.exit(1)
         if self.DATABASE_ENGINE == 'mysql':
             self.connectMySQL()
+        else:
+            sys.stderr.write('No known database engine defined\n')
+            sys.exit(1)
 
     ##############################################
     def connectMySQL(self):
