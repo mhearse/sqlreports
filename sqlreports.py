@@ -28,9 +28,11 @@ class sql:
         if not self.DATABASE_ENGINE:
             sys.stderr.write('No database engine defined\n')
             sys.exit(1)
+        if self.DATABASE_ENGINE == 'mysql':
+            self.connectMySQL()
 
     ##############################################
-    def runQuery(self, sql):
+    def connectMySQL(self):
     ##############################################
         import MySQLdb
         try:
@@ -47,16 +49,16 @@ class sql:
 
         self.cursor = self.db.cursor()
 
+    ##############################################
+    def runQuery(self, sql):
+    ##############################################
         # Execute query and load results into 2d list.
-        try:
-            self.sqloutput = []
-            self.cursor.execute(sql)
-            numrows = self.cursor.rowcount
-            for i in range(0,numrows):
-                row = self.cursor.fetchone()
-                self.sqloutput.append(row)
-        except MySQLdb.Error, e:
-            sys.stderr.write('[ERROR] %d: %s\n' % (e.args[0], e.args[1]))
+        self.sqloutput = []
+        self.cursor.execute(sql)
+        numrows = self.cursor.rowcount
+        for i in range(0,numrows):
+            row = self.cursor.fetchone()
+            self.sqloutput.append(row)
 
         return self.sqloutput
 
