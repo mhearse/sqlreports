@@ -29,12 +29,16 @@ class sql:
             self.connectMySQL()
         else:
             sys.stderr.write('No known database engine defined\n')
-            sys.exit(1)
+            sys.exit(2)
 
     ##############################################
     def connectMySQL(self):
     ##############################################
-        import MySQLdb
+        try:
+            import MySQLdb
+        except ImportError, err:
+            print "Error Importing module. %s" % (err)
+            exit(1)
         try:
             self.db = MySQLdb.connect(         \
                 host   = self.DATABASE_HOST,   \
@@ -45,7 +49,7 @@ class sql:
             )
         except MySQLdb.Error, e:
             sys.stderr.write('[ERROR] %d: %s\n' % (e.args[0], e.args[1]))
-            sys.exit(2)
+            sys.exit(3)
 
         self.cursor = self.db.cursor()
 
@@ -71,7 +75,11 @@ class spreadsheet:
     ##############################################
     def createSpreadsheet(self):
     ##############################################
-        import xlwt
+        try:
+            import xlwt
+        except ImportError, err:
+            print "Error Importing module. %s" % (err)
+            exit(1)
         book = xlwt.Workbook()
         sheet = book.add_sheet('test')
         rowx = 0
@@ -85,4 +93,8 @@ class pdf:
     ##############################################
     def __init__(self):
     ##############################################
-        import reportlab
+        try:
+            import reportlab
+        except ImportError, err:
+            print "Error Importing module. %s" % (err)
+            exit(1)
