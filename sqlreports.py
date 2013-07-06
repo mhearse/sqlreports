@@ -8,6 +8,7 @@ class sql:
         args = {} if args is None else args
 
         defaults = {                           \
+            'DATABASE_ENGINE' : '',            \
             'DATABASE_HOST'   : 'localhost',   \
             'DATABASE_USER'   : '',            \
             'DATABASE_PASSWD' : '',            \
@@ -24,6 +25,13 @@ class sql:
         for key in args.keys():
             setattr(self, key, args[key])
 
+        if not self.DATABASE_ENGINE:
+            sys.stderr.write('No database engine defined\n')
+            sys.exit(1)
+
+    ##############################################
+    def mysql(self):
+    ##############################################
         import MySQLdb
         try:
             self.db = MySQLdb.connect(         \
@@ -35,7 +43,7 @@ class sql:
             )
         except MySQLdb.Error, e:
             sys.stderr.write('[ERROR] %d: %s\n' % (e.args[0], e.args[1]))
-            sys.exit(1)
+            sys.exit(2)
 
         self.cursor = self.db.cursor()
 
