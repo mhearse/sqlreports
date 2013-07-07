@@ -1,3 +1,16 @@
+#!/usr/bin/env python
+
+"""
+
+Release under the terms of the GPL licence
+You can get a copy of the license at http://www.gnu.org
+
+Description: SQL to html, xls, graph and pdf
+
+Written by: Matt Hersant (matt_hersant[at]yahoo[dot]com)
+
+"""
+
 import sys
 
 class sql:
@@ -36,6 +49,7 @@ class sql:
     ##############################################
         try:
             import MySQLdb
+            global MySQLdb
         except ImportError, err:
             print "Error Importing module. %s" % (err)
             exit(1)
@@ -57,9 +71,14 @@ class sql:
     def runQuery(self, sql):
     ##############################################
         # Execute query and load results into 2d list.
-        self.sqloutput = []
-        self.cursor.execute(sql)
+        try:
+            self.cursor.execute(sql)
+        except MySQLdb.Error, e:
+            sys.stderr.write('[ERROR] %d: %s\n' % (e.args[0], e.args[1]))
+            sys.exit(4)
+
         numrows = self.cursor.rowcount
+        self.sqloutput = []
         for i in range(0,numrows):
             row = self.cursor.fetchone()
             self.sqloutput.append(row)
@@ -77,6 +96,7 @@ class spreadsheet:
     ##############################################
         try:
             import xlwt
+            global xlwt
         except ImportError, err:
             print "Error Importing module. %s" % (err)
             exit(1)
@@ -95,6 +115,7 @@ class pdf:
     ##############################################
         try:
             import reportlab
+            global reportlab
         except ImportError, err:
             print "Error Importing module. %s" % (err)
             exit(1)
