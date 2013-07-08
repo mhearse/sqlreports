@@ -120,6 +120,7 @@ class pdf:
         except ImportError, err:
             print "Error Importing module. %s" % (err)
             exit(6)
+        self.dataset = dataset
 
 class html:
     ##############################################
@@ -131,3 +132,4 @@ class html:
         except ImportError, err:
             print "Error Importing module. %s" % (err)
             exit(7)
+        self.dataset = dataset
