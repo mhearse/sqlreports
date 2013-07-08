@@ -65,6 +65,8 @@ class sql:
             self.connectMySQL()
         elif self.ENGINE == 'postgresql':
             self.connectPostgreSQL()
+        elif self.ENGINE == 'oracle':
+            self.connectOracle()
 
     ##############################################
     def connectMySQL(self):
