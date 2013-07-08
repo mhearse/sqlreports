@@ -21,12 +21,13 @@ class sql:
         args = {} if args is None else args
 
         defaults = {                           \
-            'DATABASE_ENGINE' : '',            \
-            'DATABASE_HOST'   : 'localhost',   \
-            'DATABASE_USER'   : '',            \
-            'DATABASE_PASSWD' : '',            \
-            'DATABASE_NAME'   : '',            \
-            'DATABASE_PORT'   : 3306,          \
+            'ENGINE' : '',          \
+            'HOST'   : 'localhost', \
+            'USER'   : '',          \
+            'PASSWD' : '',          \
+            'NAME'   : '',          \
+            'PORT'   : 3306,        \
+            'SID'    : '',          \
         }
 
         # Apply defaults.
@@ -38,11 +39,11 @@ class sql:
         for key in args.keys():
             setattr(self, key, args[key])
 
-        if self.DATABASE_ENGINE == 'mysql':
+        if self.ENGINE == 'mysql':
             self.connectMySQL()
         else:
             sys.stderr.write('No known database engine defined\n')
-            sys.exit(2)
+            sys.exit(1)
 
     ##############################################
     def connectMySQL(self):
@@ -52,17 +53,17 @@ class sql:
             global MySQLdb
         except ImportError, err:
             print "Error Importing module. %s" % (err)
-            exit(1)
+            exit(2)
         try:
-            self.db = MySQLdb.connect(         \
-                host   = self.DATABASE_HOST,   \
-                user   = self.DATABASE_USER,   \
-                passwd = self.DATABASE_PASSWD, \
-                db     = self.DATABASE_NAME,   \
-                port   = self.DATABASE_PORT    \
+            self.db = MySQLdb.connect( \
+                host   = self.HOST,    \
+                user   = self.USER,    \
+                passwd = self.PASSWD,  \
+                db     = self.NAME,    \
+                port   = self.PORT     \
             )
         except MySQLdb.Error, e:
-            sys.stderr.write('[ERROR] %d: %s\n' % (e.args[0], e.args[1]))
+            sys.stderr.write('[SQL ERROR] %d: %s\n' % (e.args[0], e.args[1]))
             sys.exit(3)
 
         self.cursor = self.db.cursor()
@@ -74,7 +75,7 @@ class sql:
         try:
             self.cursor.execute(sql)
         except MySQLdb.Error, e:
-            sys.stderr.write('[ERROR] %d: %s\n' % (e.args[0], e.args[1]))
+            sys.stderr.write('[SQL ERROR] %d: %s\n' % (e.args[0], e.args[1]))
             sys.exit(4)
 
         numrows = self.cursor.rowcount
@@ -89,17 +90,17 @@ class spreadsheet:
     ##############################################
     def __init__(self, dataset):
     ##############################################
-        self.dataset = dataset
-
-    ##############################################
-    def createSpreadsheet(self):
-    ##############################################
         try:
             import xlwt
             global xlwt
         except ImportError, err:
             print "Error Importing module. %s" % (err)
-            exit(1)
+            exit(5)
+        self.dataset = dataset
+
+    ##############################################
+    def createSpreadsheet(self):
+    ##############################################
         book = xlwt.Workbook()
         sheet = book.add_sheet('test')
         rowx = 0
@@ -111,11 +112,22 @@ class spreadsheet:
 
 class pdf:
     ##############################################
-    def __init__(self):
+    def __init__(self, dataset):
     ##############################################
         try:
             import reportlab
             global reportlab
         except ImportError, err:
             print "Error Importing module. %s" % (err)
-            exit(1)
+            exit(6)
+
+class html:
+    ##############################################
+    def __init__(self, dataset):
+    ##############################################
+        try:
+            from Cheetah.Template import Template
+            global Template
+        except ImportError, err:
+            print "Error Importing module. %s" % (err)
+            exit(7)
