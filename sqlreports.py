@@ -20,14 +20,35 @@ class sql:
         # Allow args to be optional.
         args = {} if args is None else args
 
-        defaults = {                           \
-            'ENGINE' : '',          \
-            'HOST'   : 'localhost', \
-            'USER'   : '',          \
-            'PASSWD' : '',          \
-            'NAME'   : '',          \
-            'PORT'   : 3306,        \
-            'SID'    : '',          \
+        # Sanitize args.
+        tmpdict = {}
+        for key in args.keys():
+            if key.upper() == 'ENGINE':
+                tmpdict[key.upper()] = args[key].lower()
+            else:
+                tmpdict[key.upper()] = args[key]
+        args = tmpdict
+
+        # Default db server ports.
+        ports = {                             \
+            'mysql'      : 3306,              \
+            'postgresql' : 5432,              \
+            'oracle'     : 1521,              \
+        }
+
+        # Supported engine is required.
+        if not ports.get(args.get('ENGINE')):
+            sys.stderr.write('No known database engine defined\n')
+            sys.exit(1)
+
+        defaults = {                          \
+            'ENGINE' : '',                    \
+            'HOST'   : 'localhost',           \
+            'USER'   : '',                    \
+            'PASSWD' : '',                    \
+            'NAME'   : '',                    \
+            'PORT'   : ports[args['ENGINE']], \
+            'SID'    : '',                    \
         }
 
         # Apply defaults.
@@ -41,9 +62,8 @@ class sql:
 
         if self.ENGINE == 'mysql':
             self.connectMySQL()
-        else:
-            sys.stderr.write('No known database engine defined\n')
-            sys.exit(1)
+        elif self.ENGINE == 'postgresql':
+            self.connectPostgreSQL()
 
     ##############################################
     def connectMySQL(self):
@@ -53,14 +73,15 @@ class sql:
             global MySQLdb
         except ImportError, err:
             print "Error Importing module. %s" % (err)
-            exit(2)
+            sys.exit(2)
+
         try:
             self.db = MySQLdb.connect( \
                 host   = self.HOST,    \
                 user   = self.USER,    \
                 passwd = self.PASSWD,  \
                 db     = self.NAME,    \
-                port   = self.PORT     \
+                port   = self.PORT,    \
             )
         except MySQLdb.Error, e:
             sys.stderr.write('[SQL ERROR] %d: %s\n' % (e.args[0], e.args[1]))
@@ -69,14 +90,39 @@ class sql:
         self.cursor = self.db.cursor()
 
     ##############################################
+    def connectPostgreSQL(self):
+    ##############################################
+        try:
+            import psycopg2
+            global psycopg2
+        except ImportError, err:
+            print "Error Importing module. %s" % (err)
+            sys.exit(4)
+
+        try:
+            dsn = "host='%s' port='%d' dbname='%s' user='%s' password='%s'" % (\
+                self.HOST,    \
+                self.PORT,    \
+                self.NAME,    \
+                self.USER,    \
+                self.PASSWD,  \
+            )
+            self.db = psycopg2.connect(dsn)
+        except psycopg2.Error, e:
+            sys.stderr.write('[SQL ERROR] %d: %s\n' % (e.args[0], e.args[1]))
+            sys.exit(5)
+    
+        self.cursor = self.db.cursor()
+
+    ##############################################
     def runQuery(self, sql):
     ##############################################
         # Execute query and load results into 2d list.
         try:
             self.cursor.execute(sql)
-        except MySQLdb.Error, e:
-            sys.stderr.write('[SQL ERROR] %d: %s\n' % (e.args[0], e.args[1]))
-            sys.exit(4)
+        except:
+            sys.stderr.write('Error executing SQL query.\n')
+            sys.exit(6)
 
         numrows = self.cursor.rowcount
         self.sqloutput = []
@@ -95,7 +141,7 @@ class spreadsheet:
             global xlwt
         except ImportError, err:
             print "Error Importing module. %s" % (err)
-            exit(5)
+            sys.exit(7)
         self.dataset = dataset
 
     ##############################################
@@ -135,7 +181,7 @@ class pdf:
                 colors
         except ImportError, err:
             print "Error Importing module. %s" % (err)
-            exit(6)
+            sys.exit(8)
         self.dataset = dataset
 
     ##############################################
@@ -191,5 +237,5 @@ class html:
             global Template
         except ImportError, err:
             print "Error Importing module. %s" % (err)
-            exit(7)
+            sys.exit(9)
         self.dataset = dataset
