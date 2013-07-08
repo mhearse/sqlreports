@@ -60,6 +60,7 @@ class sql:
         for key in args.keys():
             setattr(self, key, args[key])
 
+        # Attempt database connection.
         if self.ENGINE == 'mysql':
             self.connectMySQL()
         elif self.ENGINE == 'postgresql':
@@ -115,6 +116,38 @@ class sql:
         self.cursor = self.db.cursor()
 
     ##############################################
+    def connectOracle(self):
+    ##############################################
+        try:
+            import cx_Oracle
+            global cx_Oracle
+        except ImportError, err:
+            print "Error Importing module. %s" % (err)
+            sys.exit(6)
+
+        try:
+            dsn = cx_Oracle.makedsn(     \
+                self.HOST,               \
+                self.PORT,               \
+                self.SID,                \
+            )
+
+            self.db = cx_Oracle.connect( \
+                self.USER,               \
+                self.PASSWD,             \
+                dsn,                     \
+            )
+        except cx_Oracle.DatabaseError, e:
+            error, = e.args
+            if error.code == 1017:
+                sys.stderr.write('Please check your credentials.\n')
+            else:
+                sys.stderr.write('Database connection error: %s\n'.format(e))
+            sys.exit(7)
+
+        self.cursor = self.db.cursor()
+
+    ##############################################
     def runQuery(self, sql):
     ##############################################
         # Execute query and load results into 2d list.
@@ -122,7 +155,7 @@ class sql:
             self.cursor.execute(sql)
         except:
             sys.stderr.write('Error executing SQL query.\n')
-            sys.exit(6)
+            sys.exit(8)
 
         numrows = self.cursor.rowcount
         self.sqloutput = []
@@ -141,7 +174,7 @@ class spreadsheet:
             global xlwt
         except ImportError, err:
             print "Error Importing module. %s" % (err)
-            sys.exit(7)
+            sys.exit(9)
         self.dataset = dataset
 
     ##############################################
@@ -181,7 +214,7 @@ class pdf:
                 colors
         except ImportError, err:
             print "Error Importing module. %s" % (err)
-            sys.exit(8)
+            sys.exit(10)
         self.dataset = dataset
 
     ##############################################
@@ -237,5 +270,5 @@ class html:
             global Template
         except ImportError, err:
             print "Error Importing module. %s" % (err)
-            sys.exit(9)
+            sys.exit(11)
         self.dataset = dataset
