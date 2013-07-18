@@ -165,6 +165,14 @@ class sql:
             row = self.cursor.fetchone()
             self.sqloutput.append(row)
 
+        # Get column names/aliases.
+        self.column_names = []
+        for i in self.cursor.description:
+            try:
+                self.column_names.append(i[0])
+            except:
+                continue
+
         return self.sqloutput
 
 class spreadsheet:
@@ -178,6 +186,7 @@ class spreadsheet:
             print "Error Importing module. %s" % (err)
             sys.exit(9)
         self.dataset = dataset
+        self.column_names = []
 
     ##############################################
     def createSpreadsheet(self):
@@ -185,6 +194,12 @@ class spreadsheet:
         book = xlwt.Workbook()
         sheet = book.add_sheet('test')
         rowx = 0
+
+        # First row of dataset contains the headers.
+        heading_xf = xlwt.easyxf('font: bold on; align: wrap on, vert centre, horiz center')
+        for colx, value in enumerate(self.column_names):
+            sheet.write(rowx, colx, value, heading_xf)
+
         for row in self.dataset:
             rowx += 1
             for colx, value in enumerate(row):
