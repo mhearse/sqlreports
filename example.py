@@ -4,15 +4,16 @@ rpt = sqlreports.sql({      \
     'ENGINE' : 'mysql',     \
     'HOST'   : 'localhost', \
     'USER'   : 'root',      \
-    'PASSWD' : '',          \
     'NAME'   : 'matt',      \
-    'PORT'   : 3306,        \
 })
 
-results = rpt.runQuery('select * from example')
+results = rpt.runQuery('select id, name, age from example')
+
 xls = sqlreports.spreadsheet(results)
+xls.column_names = rpt.column_names
 xls.createSpreadsheet()
 
-html = sqlreports.html(results)
-
 pdf = sqlreports.pdf(results)
+pdf.createPDF()
+
+html = sqlreports.html(results)
