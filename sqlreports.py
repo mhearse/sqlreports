@@ -195,15 +195,17 @@ class spreadsheet:
         sheet = book.add_sheet('test')
         rowx = 0
 
-        # First row of dataset contains the headers.
-        heading_xf = xlwt.easyxf('font: bold on; align: wrap on, vert centre, horiz center')
-        for colx, value in enumerate(self.column_names):
-            sheet.write(rowx, colx, value, heading_xf)
+        # Apply optional headers.
+        if self.column_names:
+            heading_xf = xlwt.easyxf('font: bold on; align: wrap on, vert centre, horiz center')
+            for colx, value in enumerate(self.column_names):
+                sheet.write(rowx, colx, value, heading_xf)
+            rowx += 1
 
         for row in self.dataset:
-            rowx += 1
             for colx, value in enumerate(row):
                 sheet.write(rowx, colx, value)
+            rowx += 1
         book.save('/tmp/my.xls')
 
 class pdf:
