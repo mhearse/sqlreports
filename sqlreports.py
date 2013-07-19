@@ -235,6 +235,7 @@ class pdf:
             print "Error Importing module. %s" % (err)
             sys.exit(10)
         self.dataset = dataset
+        self.column_names = []
 
     ##############################################
     def createPDF(self):
@@ -251,29 +252,31 @@ class pdf:
             return x, y
         
         # Headers
-        hdescrpcion = Paragraph('''<b>descrpcion</b>''', styleBH)
-        hpartida = Paragraph('''<b>partida</b>''', styleBH)
-        hcandidad = Paragraph('''<b>candidad</b>''', styleBH)
-        hprecio_unitario = Paragraph('''<b>precio_unitario</b>''', styleBH)
-        hprecio_total = Paragraph('''<b>precio_total</b>''', styleBH)
+
+        # Apply optional headers.
+        if self.column_names:
+            headers = []
+            for value in self.column_names:
+                headers.append(Paragraph('<b>%s</b>' % str(value), styleBH))
+            self.dataset.insert(0, headers)
+
+        table = Table(     \
+            self.dataset,  \
+            colWidths = [  \
+                2.05 * cm, \
+                2.7  * cm, \
+                5    * cm, \
+                3    * cm, \
+                3    * cm  \
+            ]              \
+        )
         
-        # Texts
-        descrpcion = Paragraph('long paragraph', styleN)
-        partida = Paragraph('1', styleN)
-        candidad = Paragraph('120', styleN)
-        precio_unitario = Paragraph('$52.00', styleN)
-        precio_total = Paragraph('$6240.00', styleN)
-        
-        data= [[hdescrpcion, hcandidad,hcandidad, hprecio_unitario, hprecio_total],
-               [partida, candidad, descrpcion, precio_unitario, precio_total]]
-        
-        table = Table(data, colWidths=[2.05 * cm, 2.7 * cm, 5 * cm,
-                                       3* cm, 3 * cm])
-        
-        table.setStyle(TableStyle([
-                               ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
-                               ('BOX', (0,0), (-1,-1), 0.25, colors.black),
-                               ]))
+        table.setStyle(                                            \
+            TableStyle([                                           \
+                ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black), \
+                ('BOX', (0,0), (-1,-1), 0.25, colors.black),       \
+            ])                                                     \
+        )
         
         c = canvas.Canvas("a.pdf", pagesize=A4)
         table.wrapOn(c, width, height)
