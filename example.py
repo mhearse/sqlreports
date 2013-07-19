@@ -14,6 +14,7 @@ xls.column_names = rpt.column_names
 xls.createSpreadsheet()
 
 pdf = sqlreports.pdf(results)
+pdf.column_names = rpt.column_names
 pdf.createPDF()
 
 html = sqlreports.html(results)
