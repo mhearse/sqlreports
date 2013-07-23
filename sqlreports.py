@@ -287,10 +287,19 @@ class html:
     ##############################################
     def __init__(self, dataset):
     ##############################################
-        try:
-            from Cheetah.Template import Template
-            global Template
-        except ImportError, err:
-            print "Error Importing module. %s" % (err)
-            sys.exit(11)
         self.dataset = dataset
+        self.column_names = []
+
+    ##############################################
+    def createHTML(self):
+    ##############################################
+        header = '<HTML><HEAD></HEAD><BODY><TABLE>'
+        footer = '</TABLE></BODY></HTML>'
+        output = ''
+        for row in self.dataset:
+            cell = ''
+            for col in row:
+                cell += str('<TD>%s</TD>' % col)
+            output += str('<TR>%s</TR>' % cell)
+
+        return "%s%s%s" % (header, output, footer)

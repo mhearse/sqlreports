@@ -18,3 +18,5 @@ pdf.column_names = rpt.column_names
 pdf.createPDF()
 
 html = sqlreports.html(results)
+html.column_names = rpt.column_names
+zork = html.createHTML()
