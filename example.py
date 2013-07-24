@@ -13,10 +13,10 @@ xls = sqlreports.spreadsheet(results)
 xls.column_names = rpt.column_names
 xls.createSpreadsheet()
 
-pdf = sqlreports.pdf(results)
-pdf.column_names = rpt.column_names
-pdf.createPDF()
-
 html = sqlreports.html(results)
 html.column_names = rpt.column_names
 zork = html.createHTML()
+
+pdf = sqlreports.pdf(results)
+pdf.column_names = rpt.column_names
+pdf.createPDF()
