@@ -75,7 +75,7 @@ class sql:
             import MySQLdb
             global MySQLdb
         except ImportError, err:
-            print "Error Importing module. %s" % (err)
+            sys.stderr.write('Error Importing module. %s\n' % (err))
             sys.exit(2)
 
         try:
@@ -99,7 +99,7 @@ class sql:
             import psycopg2
             global psycopg2
         except ImportError, err:
-            print "Error Importing module. %s" % (err)
+            sys.stderr.write('Error Importing module. %s\n' % (err))
             sys.exit(4)
 
         try:
@@ -124,7 +124,7 @@ class sql:
             import cx_Oracle
             global cx_Oracle
         except ImportError, err:
-            print "Error Importing module. %s" % (err)
+            sys.stderr.write('Error Importing module. %s\n' % (err))
             sys.exit(6)
 
         try:
@@ -177,13 +177,29 @@ class sql:
 
 class spreadsheet:
     ##############################################
-    def __init__(self, dataset):
+    def __init__(self, dataset, args=None):
     ##############################################
+        # Allow args to be optional.
+        args = {} if args is None else args
+
+        # Sanitize args.
+        tmpdict = {}
+        for key in args.keys():
+            tmpdict[key.upper()] = args[key]
+        args = tmpdict
+
+        # Apply human's arguments.
+        for key in args.keys():
+            setattr(self, key, args[key])
+
+        if not hasattr(self, 'FILENAME'):
+            setattr(self, 'FILENAME', randfilename('xls'))
+
         try:
             import xlwt
             global xlwt
         except ImportError, err:
-            print "Error Importing module. %s" % (err)
+            sys.stderr.write('Error Importing module. %s\n' % (err))
             sys.exit(9)
         self.dataset = dataset
         self.column_names = []
@@ -206,12 +222,28 @@ class spreadsheet:
             for colx, value in enumerate(row):
                 sheet.write(rowx, colx, value)
             rowx += 1
-        book.save('/tmp/my.xls')
+        book.save(self.FILENAME)
 
 class pdf:
     ##############################################
-    def __init__(self, dataset):
+    def __init__(self, dataset, args=None):
     ##############################################
+        # Allow args to be optional.
+        args = {} if args is None else args
+
+        # Sanitize args.
+        tmpdict = {}
+        for key in args.keys():
+            tmpdict[key.upper()] = args[key]
+        args = tmpdict
+
+        # Apply human's arguments.
+        for key in args.keys():
+            setattr(self, key, args[key])
+
+        if not hasattr(self, 'FILENAME'):
+            setattr(self, 'FILENAME', randfilename('pdf'))
+
         try:
             from reportlab.pdfgen import canvas
             from reportlab.lib.pagesizes import A4, cm
@@ -232,7 +264,7 @@ class pdf:
                 TA_CENTER,           \
                 colors
         except ImportError, err:
-            print "Error Importing module. %s" % (err)
+            sys.stderr.write('Error Importing module. %s\n' % (err))
             sys.exit(10)
         self.dataset = dataset
         self.column_names = []
@@ -252,16 +284,17 @@ class pdf:
             return x, y
         
         # Headers
+        localdataset = self.dataset
 
         # Apply optional headers.
         if self.column_names:
             headers = []
             for value in self.column_names:
                 headers.append(Paragraph('<b>%s</b>' % str(value), styleBH))
-            self.dataset.insert(0, headers)
+            localdataset.insert(0, headers)
 
         table = Table(     \
-            self.dataset,  \
+            localdataset,  \
             colWidths = [  \
                 2.05 * cm, \
                 2.7  * cm, \
@@ -278,7 +311,7 @@ class pdf:
             ])                                                     \
         )
         
-        c = canvas.Canvas("a.pdf", pagesize=A4)
+        c = canvas.Canvas(self.FILENAME, pagesize=A4)
         table.wrapOn(c, width, height)
         table.drawOn(c, *coord(1.8, 9.6, cm))
         c.save()
@@ -303,3 +336,10 @@ class html:
             output += str('<TR>%s</TR>' % cell)
 
         return "%s%s%s" % (header, output, footer)
+
+# Peace loving helper funcs.
+##############################################
+def randfilename(extension):
+##############################################
+    from time import time
+    return '/tmp/%s.%s' % ( str(time() * .2), str(extension) )
