@@ -8,3 +8,5 @@ Supported database engines
 * postgresql
 * oracle
 * sqlite
+
+Found huge bug with multi page pdf output
