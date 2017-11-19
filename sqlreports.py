@@ -182,13 +182,8 @@ class sql:
 
         self.sqloutput = []
         # python sqlite3 always returns negative row count
-        if self.ENGINE == 'sqlite':
-            self.sqloutput = self.cursor.fetchall()
-        else:
-            numrows = self.cursor.rowcount
-            for i in range(0,numrows):
-                row = self.cursor.fetchone()
-                self.sqloutput.append(row)
+        # so we'll just do fetchall
+        self.sqloutput = self.cursor.fetchall()
 
         # Get column names/aliases.
         self.column_names = []
