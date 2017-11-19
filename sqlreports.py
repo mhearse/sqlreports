@@ -34,12 +34,8 @@ class sql:
             'mysql'      : 3306,              \
             'postgresql' : 5432,              \
             'oracle'     : 1521,              \
+            'sqlite'     : 1                  \
         }
-
-        # Supported engine is required.
-        if not ports.get(args.get('ENGINE')):
-            sys.stderr.write('No known database engine defined\n')
-            sys.exit(1)
 
         defaults = {                          \
             'ENGINE' : '',                    \
@@ -60,6 +56,11 @@ class sql:
         for key in args.keys():
             setattr(self, key, args[key])
 
+        # Supported engine is required.
+        if not ports.get(getattr(self, 'ENGINE')):
+            sys.stderr.write('No known database engine defined\n')
+            sys.exit(1)
+
         # Attempt database connection.
         if self.ENGINE == 'mysql':
             self.connectMySQL()
@@ -67,6 +68,8 @@ class sql:
             self.connectPostgreSQL()
         elif self.ENGINE == 'oracle':
             self.connectOracle()
+        elif self.ENGINE == 'sqlite':
+            self.connectSqlite()
 
     ##############################################
     def connectMySQL(self):
@@ -146,6 +149,24 @@ class sql:
             else:
                 sys.stderr.write('Database connection error: %s\n'.format(e))
             sys.exit(7)
+
+        self.cursor = self.db.cursor()
+
+    ##############################################
+    def connectSqlite(self):
+    ##############################################
+        try:
+            import sqlite3 as sqlite
+            global sqlite
+        except ImportError, err:
+            sys.stderr.write('Error Importing module. %s\n' % (err))
+            sys.exit(2)
+
+        try:
+            self.db = sqlite.connect(self.NAME)
+        except sqlite.Error, e:
+            print "Error %s:" % e.args[0]
+            sys.exit(1)
 
         self.cursor = self.db.cursor()
 

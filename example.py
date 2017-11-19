@@ -2,15 +2,16 @@
 
 import sqlreports
 
-rpt = sqlreports.sql({        \
-    'ENGINE'   : 'mysql',     \
-    'HOST'     : 'localhost', \
-    'USER'     : 'dbuser',    \
-    'PASSWD'   : 'dbpass',    \
-    'NAME'     : 'matt',      \
+rpt = sqlreports.sql({
+    'ENGINE'   : 'sqlite',
+    'HOST'     : 'localhost',
+    'NAME'     : 'matt.db',
 })
 
-results = rpt.runQuery('select id, name, age from example')
+results = rpt.runQuery('select name, age from example')
+
+from pprint import *
+pprint(results)
 
 # multi workbook spreadsheets will be represented as a 3 deminsional array
 # workbook1, workbook2
