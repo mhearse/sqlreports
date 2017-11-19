@@ -180,11 +180,15 @@ class sql:
             sys.stderr.write('Error executing SQL query.\n')
             sys.exit(8)
 
-        numrows = self.cursor.rowcount
         self.sqloutput = []
-        for i in range(0,numrows):
-            row = self.cursor.fetchone()
-            self.sqloutput.append(row)
+        # python sqlite3 always returns negative row count
+        if self.ENGINE == 'sqlite':
+            self.sqloutput = self.cursor.fetchall()
+        else:
+            numrows = self.cursor.rowcount
+            for i in range(0,numrows):
+                row = self.cursor.fetchone()
+                self.sqloutput.append(row)
 
         # Get column names/aliases.
         self.column_names = []

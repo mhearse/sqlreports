@@ -10,9 +10,6 @@ rpt = sqlreports.sql({
 
 results = rpt.runQuery('select name, age from example')
 
-from pprint import *
-pprint(results)
-
 # multi workbook spreadsheets will be represented as a 3 deminsional array
 # workbook1, workbook2
 xls = sqlreports.spreadsheet(results)
