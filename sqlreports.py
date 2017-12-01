@@ -13,7 +13,7 @@ Written by: Matt Hersant (matt_hersant[at]yahoo[dot]com)
 
 import sys
 
-class sqlreports:
+class sql:
     ##############################################
     def __init__(self, args=None):
     ##############################################
